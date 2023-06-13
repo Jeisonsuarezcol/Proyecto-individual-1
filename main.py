@@ -192,23 +192,30 @@ def get_director(nombre_director:str):
 # ML
 @app.get('/recomendacion/{titulo}')
 def recomendacion(titulo:str):
-    '''Ingresas un nombre de pelicula y te recomienda las similares en una lista'''
+    '''Ingresas un nombre de pelicula y te recomienda las similares en una lista
+        solo se cuenta con 2000 registros debido al costo computacional'''
+
+    try:
     
-    titulo = titulo.title()
-    # Obtener el índice  
-    indice_pelicula = df[df['title'] == titulo].index[0] 
+        titulo = titulo.title()
+        # Obtener el índice  
+        indice_pelicula = df[df['title'] == titulo].index[0] 
 
-    # Calcularmos la similitud de puntuación entre películas 
-    vectorizer = TfidfVectorizer(stop_words='english') 
-    tfidf_matrix = vectorizer.fit_transform(df['title'].values.astype('U'))  
-    similarity_matrix = cosine_similarity(tfidf_matrix) 
+        # Calcularmos la similitud de puntuación entre películas 
+        vectorizer = TfidfVectorizer(stop_words='english') 
+        tfidf_matrix = vectorizer.fit_transform(df['title'].values.astype('U'))  
+        similarity_matrix = cosine_similarity(tfidf_matrix) 
 
-    # Obtener las películas más similares en función de la puntuación 
-    similar_movies = list(enumerate(similarity_matrix[indice_pelicula])) 
-    similar_movies = sorted(similar_movies, key=lambda x: x[1], reverse=True) 
-    top_similar_movies = similar_movies[1:6]  # Excluye la película de interés y toma las 5 más similares 
+        # Obtener las películas más similares en función de la puntuación 
+        similar_movies = list(enumerate(similarity_matrix[indice_pelicula])) 
+        similar_movies = sorted(similar_movies, key=lambda x: x[1], reverse=True) 
+        top_similar_movies = similar_movies[1:6]  # Excluye la película de interés y toma las 5 más similares 
 
-    # Obtiene los nombres de las películas recomendadas 
-    recommended_movies = [df.iloc[movie[0]]['title'] for movie in top_similar_movies] 
- 
-    return {'lista recomendada': recommended_movies}
+        # Obtiene los nombres de las películas recomendadas 
+        recommended_movies = [df.iloc[movie[0]]['title'] for movie in top_similar_movies] 
+
+        return {'lista recomendada': recommended_movies}
+    
+    except IndexError:
+        
+        return {'mensaje' : f'La película {titulo} no se encuentra'}
