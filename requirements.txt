@@ -5,6 +5,10 @@ fastapi==0.97.0
 h11==0.14.0
 idna==3.4
 joblib==1.2.0
+<<<<<<< HEAD
+=======
+numpy==1.21.6
+>>>>>>> acd676ef03377938625aba8cee5328d5131ef80a
 pandas==1.3.5
 pydantic==1.10.9
 python-dateutil==2.8.2
@@ -17,4 +21,8 @@ starlette==0.27.0
 threadpoolctl==3.1.0
 typing_extensions==4.6.3
 tzdata==2023.3
+<<<<<<< HEAD
 uvicorn==0.22.0
+=======
+uvicorn==0.22.0
+>>>>>>> acd676ef03377938625aba8cee5328d5131ef80a
