@@ -15,8 +15,8 @@ df_production_countries = pd.read_csv('datasets/production_countries.csv')
 df_production_companies = pd.read_csv('datasets/production_companies.csv')
 df_crew = pd.read_csv('datasets/data_crew.csv')
 
-df = df_final.drop(columns=['id', 'original_language','release_year','runtime', 'status','tagline','budget','release_date','revenue','vote_average','vote_count','return'])
-df = df[:2000]
+df = df_final[['title']]
+df = df[:30000]
 
 
 @app.get('/')
@@ -28,37 +28,49 @@ def index():
 @app.get('/peliculas_idioma/{idioma}')
 def peliculas_idioma(idioma: str):
     
+    '''Ingresas el idioma, retornando la cantidad de peliculas producidas en el mismo'''
+    
     idioma = idioma.lower()
     
     total_movies = len(df_final[df_final['original_language'] == idioma])
     
-    return f"{total_movies} películas fueron estrenadas en idioma {idioma}"
+    return {'idioma':idioma, 'cantidad':total_movies}
 
-
+    
 @app.get('/peliculas_duracion/{pelicula}')
 def peliculas_duracion(pelicula:str):
     
-    try:
+    '''Ingresas la pelicula, retornando la duracion y el año'''
     
-        pelicula = pelicula.title()
+    pelicula = pelicula.title()
 
-        anio = int(df_final['release_year'][df_final['title'] == pelicula].values[0])
-
-        minutos = df_final['runtime'][df_final['title'] == pelicula].values[0]
-
-        horas, minutos = divmod(minutos, 60)
-
-        duracion = f"{int(horas)}h {int(minutos)}m"
-
-        return {'titulo':pelicula, 'duracion': duracion, 'anio': anio}
+    anio = df_final['release_year'][df_final['title'] == pelicula].to_list()
     
-    except IndexError:
-
+    if len(anio) == 0:
+        
         return {'mensaje' : f'La película {pelicula} no se encuentra'}
+    
+    else:
+
+        lista_minutos = df_final['runtime'][df_final['title'] == pelicula].to_list()
+
+        lista_duracion = []
+
+        for valor in lista_minutos:
+
+            horas, minutos = divmod(valor, 60)
+
+            duracion = f"{int(horas)}h {int(minutos)}m"
+
+            lista_duracion.append(duracion)
+
+        return {'titulo': pelicula, 'duracion': lista_duracion, 'anio': anio}
 
 
 @app.get('/franquicia/{franquicia}')
 def franquicia(franquicia:str):
+    
+    '''Se ingresa la franquicia, retornando la cantidad de peliculas, ganancia total y promedio'''
     
     franquicia = franquicia.title()
     
@@ -81,6 +93,8 @@ def franquicia(franquicia:str):
 @app.get('/peliculas_pais/{pais}')
 def peliculas_pais(pais:str):
     
+    '''Ingresas el pais, retornando la cantidad de peliculas producidas en el mismo'''
+    
     pais = pais.title()
     
     num_movies = len(df_production_countries[df_production_countries['name'] == pais])
@@ -91,11 +105,13 @@ def peliculas_pais(pais:str):
     
     else:
     
-        return {'pais': pais, 'num_movies': num_movies}
+        return {'pais': pais, 'cantidad': num_movies}
 
 
 @app.get('/productoras_exitosas/{productora}')
 def productoras_exitosas(productora:str): 
+    
+    '''Ingresas la productora, entregandote el revunue total y la cantidad de peliculas que realizo '''
     
     productora = productora.title()
     
@@ -110,11 +126,12 @@ def productoras_exitosas(productora:str):
     
         ganancia_total = df_final['revenue'][df_final['id'].isin(movies)].sum()
 
-        return {'productora': productora, 'num_peliculas': num_movies, 'ganancia_total': ganancia_total}
+        return {'productora':productora, 'revenue_total': ganancia_total,'cantidad':num_movies}
     
     
 @app.get('/get_director/{nombre_director}')
 def get_director(nombre_director:str):
+    
     ''' Se ingresa el nombre de un director que se encuentre dentro de un dataset debiendo devolver el éxito del mismo medido a través del retorno. 
     Además, deberá devolver el nombre de cada película con la fecha de lanzamiento, retorno individual, costo y ganancia de la misma.'''
 
@@ -153,8 +170,9 @@ def get_director(nombre_director:str):
 # ML
 @app.get('/recomendacion/{titulo}')
 def recomendacion(titulo:str):
-    '''Ingresas un nombre de pelicula y te recomienda las similares en una lista
-        solo se cuenta con 2000 registros debido al costo computacional'''
+    
+    '''Ingresas un nombre de pelicula y te recomienda las similares en una lista.
+        El dataset tiene límite de 30 mil registros debido al costo computacional'''
 
     try:
     
