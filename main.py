@@ -16,7 +16,7 @@ df_production_companies = pd.read_csv('datasets/production_companies.csv')
 df_crew = pd.read_csv('datasets/data_crew.csv')
 
 df = df_final[['title']]
-df = df[:10000]
+df = df[:4000]
 
 
 @app.get('/')
