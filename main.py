@@ -16,7 +16,7 @@ df_production_companies = pd.read_csv('datasets/production_companies.csv')
 df_crew = pd.read_csv('datasets/data_crew.csv')
 
 df = df_final[['title']]
-df = df[:20000]
+df = df[:2000]
 
 
 @app.get('/')
@@ -172,7 +172,7 @@ def get_director(nombre_director:str):
 def recomendacion(titulo:str):
     
     '''Ingresas un nombre de pelicula y te recomienda las similares en una lista.
-        El dataset tiene un límite de 27 mil registros debido al costo computacional'''
+        El dataset tiene un límite de registros debido al costo computacional'''
 
     try:
     
